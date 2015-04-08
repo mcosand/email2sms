@@ -1,11 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Configuration;
-using System.Data.Entity;
 using System.Linq;
-using System.Net;
-using System.Net.Http;
-using System.Net.Mail;
 using System.Web.Http;
 using email2sms.Api.Model;
 using email2sms.Data;
@@ -22,7 +17,6 @@ namespace email2sms.Api
         {
           var twilioSid = ConfigurationManager.AppSettings["twilio:sid"];
           var twilioToken = ConfigurationManager.AppSettings["twilio:token"];
-          var twilioCost = decimal.Parse(ConfigurationManager.AppSettings["twilio:cost"] ?? ".0075");
           var twilioFrom = ConfigurationManager.AppSettings["twilio:numbers"];
 
           bool hasTwilio = !string.IsNullOrWhiteSpace(twilioSid);
@@ -44,9 +38,8 @@ namespace email2sms.Api
               var list = db.Phones.ToList();
               foreach (var item in list)
               {
-               // var twilioMsg = twilioClient.SendMessage(twilioFroms[fromIndex], item.Address, message.plain);
+                var twilioMsg = twilioClient.SendMessage(twilioFroms[fromIndex], item.Address, message.plain);
                 fromIndex = (fromIndex + 1) % twilioFroms.Length;
-                Message twilioMsg = new Message { Price = 0.0075M };
                 db.InvoiceItems.Add(new InvoiceLog { SendTo = item, Price = twilioMsg.Price, SendTime = DateTime.UtcNow, Message = msgLog });
                 db.SaveChanges();
               }
