@@ -35,6 +35,12 @@ namespace email2sms.Api
               db.MessageLog.Add(msgLog);
               db.SaveChanges();
 
+              DateTime duplicateTime = DateTime.UtcNow.AddMinutes(-5);
+              if (db.InvoiceItems.Any(f => f.Message.Text == message.plain && f.SendTime > duplicateTime))
+              {
+                return "Duplicate";
+              }
+
               var list = db.Phones.ToList();
               foreach (var item in list)
               {
@@ -58,7 +64,8 @@ namespace email2sms.Api
         var msg = new MessageLog
         {
           Received = DateTime.UtcNow,
-          Json = JsonConvert.SerializeObject(message)
+          Json = JsonConvert.SerializeObject(message),
+          Text = message.plain
         };
 
         return msg;
