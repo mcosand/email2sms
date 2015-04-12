@@ -191,6 +191,10 @@
     <Compile Include="Migrations\201504080012385_InitialCreate.Designer.cs">
       <DependentUpon>201504080012385_InitialCreate.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201504112225191_AddTextColumn.cs" />
+    <Compile Include="Migrations\201504112225191_AddTextColumn.Designer.cs">
+      <DependentUpon>201504112225191_AddTextColumn.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
     <Compile Include="Models\IdentityModels.cs" />
@@ -270,6 +274,9 @@
   <ItemGroup>
     <EmbeddedResource Include="Migrations\201504080012385_InitialCreate.resx">
       <DependentUpon>201504080012385_InitialCreate.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201504112225191_AddTextColumn.resx">
+      <DependentUpon>201504112225191_AddTextColumn.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>
