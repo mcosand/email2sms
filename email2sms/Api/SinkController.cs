@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Configuration;
 using System.Linq;
+using System.Runtime.Caching;
 using System.Web.Http;
 using email2sms.Api.Model;
 using email2sms.Data;
@@ -11,6 +12,9 @@ namespace email2sms.Api
 {
     public class SinkController : ApiController
     {
+      static MemoryCache messageCache = new MemoryCache("pagesCache");
+      static object cacheLock = new object();
+
       public object Post(EmailMessage message)
       {
         try
@@ -35,7 +39,20 @@ namespace email2sms.Api
               db.MessageLog.Add(msgLog);
               db.SaveChanges();
 
+              // A quick in-memory duplicate check backed up by a database dupe check in case we've been recycled.
               DateTime duplicateTime = DateTime.UtcNow.AddMinutes(-5);
+              lock(cacheLock)
+              {
+                if (messageCache.Contains(message.plain))
+                {
+                  return "Duplicate";
+                }
+                else
+                {
+                  messageCache.Add(message.plain, DateTime.Now, DateTimeOffset.Now.AddMinutes(5));
+                }
+              }
+
               if (db.InvoiceItems.Any(f => f.Message.Text == message.plain && f.SendTime > duplicateTime))
               {
                 return "Duplicate";
