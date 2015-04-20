@@ -19,6 +19,7 @@ namespace email2sms.Data
     {
       modelBuilder.Types().Configure(e => e.ToTable("email2sms_" + e.ClrType.Name));
       base.OnModelCreating(modelBuilder);
+      modelBuilder.Properties<decimal>().Configure(f => f.HasPrecision(18,4));
     }
   }
 }

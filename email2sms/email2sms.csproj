@@ -196,6 +196,10 @@
     <Compile Include="Migrations\201504112225191_AddTextColumn.Designer.cs">
       <DependentUpon>201504112225191_AddTextColumn.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201504200130036_DecimalPrecision.cs" />
+    <Compile Include="Migrations\201504200130036_DecimalPrecision.Designer.cs">
+      <DependentUpon>201504200130036_DecimalPrecision.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
     <Compile Include="Models\IdentityModels.cs" />
@@ -278,6 +282,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201504112225191_AddTextColumn.resx">
       <DependentUpon>201504112225191_AddTextColumn.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201504200130036_DecimalPrecision.resx">
+      <DependentUpon>201504200130036_DecimalPrecision.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>
