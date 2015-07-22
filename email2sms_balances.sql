@@ -1,0 +1,1 @@
+SELECT s.Email,0.0075 * COUNT(l.id) as Cost,s.balance - 0.0075 * COUNT(l.id) AS Remaining FROM email2sms_phone p JOIN email2sms_subscription s ON p.subscription_id=s.id LEFT JOIN email2sms_invoicelog l ON l.sendto_id=p.id GROUP BY s.Email,s.balance

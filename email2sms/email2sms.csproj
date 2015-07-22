@@ -20,6 +20,7 @@
     <IISExpressAnonymousAuthentication />
     <IISExpressWindowsAuthentication />
     <IISExpressUseClassicPipelineMode />
+    <UseGlobalApplicationHostFile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -200,6 +201,10 @@
     <Compile Include="Migrations\201504200130036_DecimalPrecision.Designer.cs">
       <DependentUpon>201504200130036_DecimalPrecision.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201507220044046_TrackSids.cs" />
+    <Compile Include="Migrations\201507220044046_TrackSids.Designer.cs">
+      <DependentUpon>201507220044046_TrackSids.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
     <Compile Include="Models\IdentityModels.cs" />
@@ -285,6 +290,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201504200130036_DecimalPrecision.resx">
       <DependentUpon>201504200130036_DecimalPrecision.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201507220044046_TrackSids.resx">
+      <DependentUpon>201507220044046_TrackSids.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>
