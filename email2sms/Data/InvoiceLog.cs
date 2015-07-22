@@ -11,6 +11,7 @@ namespace email2sms.Data
     public virtual Phone SendTo { get; set; }
     public virtual MessageLog Message { get; set; }
     public DateTime SendTime { get; set; }
-    public decimal Price { get; set; }
+    public decimal? Price { get; set; }
+    public string Sid { get; set; }
   }
 }

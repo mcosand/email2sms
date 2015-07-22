@@ -63,7 +63,7 @@ namespace email2sms.Api
               {
                 var twilioMsg = twilioClient.SendMessage(twilioFroms[fromIndex], item.Address, message.plain);
                 fromIndex = (fromIndex + 1) % twilioFroms.Length;
-                db.InvoiceItems.Add(new InvoiceLog { SendTo = item, Price = twilioMsg.Price, SendTime = DateTime.UtcNow, Message = msgLog });
+                db.InvoiceItems.Add(new InvoiceLog { SendTo = item, Sid = twilioMsg.Sid, SendTime = DateTime.UtcNow, Message = msgLog });
                 db.SaveChanges();
               }
             }
