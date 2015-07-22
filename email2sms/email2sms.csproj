@@ -170,6 +170,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Api\AccountingController.cs" />
     <Compile Include="Api\Model\EmailMessage.cs" />
     <Compile Include="Api\SinkController.cs" />
     <Compile Include="App_Start\BundleConfig.cs" />
