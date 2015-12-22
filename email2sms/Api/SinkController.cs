@@ -41,7 +41,7 @@ namespace email2sms.Api
             db.SaveChanges();
 
             string plainMessage = message.plain;
-            var locationMatch = Regex.Match(plainMessage, "(4\\d\\.\\d+)[N ,]+\\-?(12\\d+\\.\\d+)", RegexOptions.IgnoreCase);
+            var locationMatch = Regex.Match(plainMessage, "(4\\d\\.\\d+)[N ,]+[W\\- ]?(12\\d+\\.\\d+)", RegexOptions.IgnoreCase);
             if (locationMatch.Success)
             {
               plainMessage += string.Format(" http://maps.google.com/?q={0},-{1}", locationMatch.Groups[1].Value, locationMatch.Groups[2].Value);
