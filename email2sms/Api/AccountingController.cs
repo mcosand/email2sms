@@ -30,6 +30,7 @@
             count++;
             entry.Price = -msg.Price;
           }
+          if (count % 100 == 0) await db.SaveChangesAsync();
         }
         await db.SaveChangesAsync();
       }
