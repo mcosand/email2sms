@@ -206,6 +206,10 @@
     <Compile Include="Migrations\201507220044046_TrackSids.Designer.cs">
       <DependentUpon>201507220044046_TrackSids.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201608170438230_ActiveFlag.cs" />
+    <Compile Include="Migrations\201608170438230_ActiveFlag.Designer.cs">
+      <DependentUpon>201608170438230_ActiveFlag.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
     <Compile Include="Models\IdentityModels.cs" />
@@ -294,6 +298,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201507220044046_TrackSids.resx">
       <DependentUpon>201507220044046_TrackSids.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201608170438230_ActiveFlag.resx">
+      <DependentUpon>201608170438230_ActiveFlag.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>

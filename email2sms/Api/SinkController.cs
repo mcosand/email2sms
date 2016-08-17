@@ -66,7 +66,7 @@ namespace email2sms.Api
               return "Duplicate";
             }
 
-            var list = db.Phones.ToList();
+            var list = db.Phones.Where(f => f.Active).ToList();
             foreach (var item in list)
             {
               var twilioMsg = twilioClient.SendMessage(twilioFroms[fromIndex], item.Address, plainMessage);
