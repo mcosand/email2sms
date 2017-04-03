@@ -1,4 +1,5 @@
-﻿using System.Web.Http;
+﻿using System;
+using System.Web.Http;
 using System.Web.Mvc;
 using System.Web.Optimization;
 using System.Web.Routing;
@@ -22,7 +23,13 @@ namespace email2sms
 
     protected void Application_Error()
     {
-      LogManager.GetLogger("Errors").Error(Server.GetLastError());
+      var ex = Server.GetLastError();
+      LogManager.GetLogger("Errors").Error(ex);
+      using (var db = new email2sms.Data.Email2SmsContext())
+      {
+        db.Errors.Add(new Data.ErrorRow { User = User.Identity.Name, TimeUtc = DateTime.UtcNow, Message = ex.Message, Stack = ex.ToString() });
+        db.SaveChanges();
+      }
     }
   }
 }

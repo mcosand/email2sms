@@ -32,6 +32,12 @@ namespace email2sms
     {
       //Log Critical errors
       LogManager.GetLogger("Errors").Error(context.Exception);
+      using (var db = new email2sms.Data.Email2SmsContext())
+      {
+        db.Errors.Add(new Data.ErrorRow { User = context.ActionContext.RequestContext.Principal.Identity.Name,
+          TimeUtc = DateTime.UtcNow, Message = context.Exception.Message, Stack = context.Exception.ToString() });
+        db.SaveChanges();
+      }
 
       throw new HttpResponseException(new HttpResponseMessage(HttpStatusCode.InternalServerError)
       {

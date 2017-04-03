@@ -15,6 +15,8 @@ namespace email2sms.Data
     public IDbSet<Subscription> Subscriptions { get; set; }
     public IDbSet<MessageLog> MessageLog { get; set; }
     public IDbSet<InvoiceLog> InvoiceItems { get; set; }
+    public IDbSet<ErrorRow> Errors { get; set; }
+
 
     protected override void OnModelCreating(DbModelBuilder modelBuilder)
     {
