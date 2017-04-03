@@ -194,6 +194,7 @@
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\ManageController.cs" />
     <Compile Include="Data\Email2SmsContext.cs" />
+    <Compile Include="Data\ErrorRow.cs" />
     <Compile Include="Data\InvoiceLog.cs" />
     <Compile Include="Data\MessageLog.cs" />
     <Compile Include="Data\Phone.cs" />
