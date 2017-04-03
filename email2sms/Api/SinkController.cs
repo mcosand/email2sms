@@ -99,7 +99,7 @@ namespace email2sms.Api
 
               if (dbMsg != null && !dbMsg.Msg.Price.HasValue)
               {
-                dbMsg.Msg.Price = msg.Price;
+                dbMsg.Msg.Price = -msg.Price;
                 db.SaveChanges();
                 scope.Commit();
               }
