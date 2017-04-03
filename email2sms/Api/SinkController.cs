@@ -95,6 +95,7 @@ namespace email2sms.Api
           for (int i = 0; i < 10; i++)
           {
             msg = twilio.GetMessage(data.MessageSid);
+            _log.Info($"Message {data.MessageSid} price: {msg.Price}");
             if (msg.Price < 0) break;
 
             Thread.Sleep(1000);
@@ -105,7 +106,6 @@ namespace email2sms.Api
             throw new ApplicationException("Couldn't get price");
           }
 
-          _log.Info($"Message {data.MessageSid} price: {msg.Price}");
 
           using (var scope = db.Database.BeginTransaction())
           {
