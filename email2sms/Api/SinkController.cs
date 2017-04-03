@@ -6,6 +6,7 @@ using System.Text.RegularExpressions;
 using System.Web.Http;
 using email2sms.Api.Model;
 using email2sms.Data;
+using log4net;
 using Newtonsoft.Json;
 using Twilio;
 
@@ -15,6 +16,7 @@ namespace email2sms.Api
   {
     static MemoryCache messageCache = new MemoryCache("pagesCache");
     static object cacheLock = new object();
+    ILog _log = LogManager.GetLogger("SinkController");
 
     [Route("api/sink")]
     public object Post(EmailMessage message)
@@ -84,10 +86,12 @@ namespace email2sms.Api
     {
       if (data.MessageStatus == "delivered" && TwilioProvider.HasTwilio())
       {
+        _log.Info($"Callback: delivered message {data.MessageSid}");
         using (var db = new Email2SmsContext())
         {
           var twilio = TwilioProvider.GetTwilio();
           var msg = twilio.GetMessage(data.MessageSid);
+          _log.Info($"Message {data.MessageSid} price: {msg.Price}");
 
           using (var scope = db.Database.BeginTransaction())
           {
