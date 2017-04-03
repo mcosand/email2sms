@@ -1,0 +1,16 @@
+﻿@model email2sms.Models.HistoryRow[]
+@{
+  ViewBag.Title = "Message History";  
+}
+<h2>@ViewBag.Title</h2>
+<table class="table">
+  <thead>
+    <tr><th>Date</th><th>Phone</th><th>Message</th><th>Price</th></tr>
+    </thead>
+  <tbody>
+    @foreach (var row in Model)
+    {
+      <tr><td>@TimeZoneInfo.ConvertTimeFromUtc(row.When, TimeZoneInfo.FindSystemTimeZoneById("Pacific Standard Time")).ToString("yyyy-MM-ddTHH:mm")</td><td>@row.Phone</td><td>@row.Message</td><td>@(row.Cost.HasValue ? row.Cost.Value.ToString("C4") : string.Empty)</td></tr>
+    }
+    </tbody>
+</table>

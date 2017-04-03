@@ -6,28 +6,38 @@ using Microsoft.AspNet.Identity.EntityFramework;
 
 namespace email2sms.Models
 {
-    // You can add profile data for the user by adding more properties to your ApplicationUser class, please visit http://go.microsoft.com/fwlink/?LinkID=317594 to learn more.
-    public class ApplicationUser : IdentityUser
+  // You can add profile data for the user by adding more properties to your ApplicationUser class, please visit http://go.microsoft.com/fwlink/?LinkID=317594 to learn more.
+  public class ApplicationUser : IdentityUser
+  {
+    public async Task<ClaimsIdentity> GenerateUserIdentityAsync(UserManager<ApplicationUser> manager)
     {
-        public async Task<ClaimsIdentity> GenerateUserIdentityAsync(UserManager<ApplicationUser> manager)
-        {
-            // Note the authenticationType must match the one defined in CookieAuthenticationOptions.AuthenticationType
-            var userIdentity = await manager.CreateIdentityAsync(this, DefaultAuthenticationTypes.ApplicationCookie);
-            // Add custom user claims here
-            return userIdentity;
-        }
+      // Note the authenticationType must match the one defined in CookieAuthenticationOptions.AuthenticationType
+      var userIdentity = await manager.CreateIdentityAsync(this, DefaultAuthenticationTypes.ApplicationCookie);
+      // Add custom user claims here
+      return userIdentity;
+    }
+  }
+
+  public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
+  {
+    public ApplicationDbContext()
+        : base("DefaultConnection", throwIfV1Schema: false)
+    {
     }
 
-    public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
+    public static ApplicationDbContext Create()
     {
-        public ApplicationDbContext()
-            : base("DefaultConnection", throwIfV1Schema: false)
-        {
-        }
-
-        public static ApplicationDbContext Create()
-        {
-            return new ApplicationDbContext();
-        }
+      return new ApplicationDbContext();
     }
+
+    protected override void OnModelCreating(DbModelBuilder modelBuilder)
+    {
+      base.OnModelCreating(modelBuilder);
+      modelBuilder.Entity<ApplicationUser>().ToTable("email2sms_Users");
+      modelBuilder.Entity<IdentityRole>().ToTable("email2sms_Roles");
+      modelBuilder.Entity<IdentityUserRole>().ToTable("email2sms_UserRoles");
+      modelBuilder.Entity<IdentityUserClaim>().ToTable("email2sms_UserClaims");
+      modelBuilder.Entity<IdentityUserLogin>().ToTable("email2sms_UserLogins");
+    }
+  }
 }

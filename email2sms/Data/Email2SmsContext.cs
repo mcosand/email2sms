@@ -8,7 +8,8 @@ namespace email2sms.Data
 {
   public class Email2SmsContext : DbContext
   {
-    public Email2SmsContext() : base("DefaultConnection") { }
+    public Email2SmsContext() : base("DefaultConnection") {
+    }
 
     public IDbSet<Phone> Phones { get; set; }
     public IDbSet<Subscription> Subscriptions { get; set; }
@@ -22,4 +23,5 @@ namespace email2sms.Data
       modelBuilder.Properties<decimal>().Configure(f => f.HasPrecision(18,4));
     }
   }
+
 }

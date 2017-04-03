@@ -16,60 +16,54 @@ namespace email2sms.Api
     static MemoryCache messageCache = new MemoryCache("pagesCache");
     static object cacheLock = new object();
 
+    [Route("api/sink")]
     public object Post(EmailMessage message)
     {
       try
       {
-        var twilioSid = ConfigurationManager.AppSettings["twilio:sid"];
-        var twilioToken = ConfigurationManager.AppSettings["twilio:token"];
-        var twilioFrom = ConfigurationManager.AppSettings["twilio:numbers"];
-
-        bool hasTwilio = !string.IsNullOrWhiteSpace(twilioSid);
-        hasTwilio &= !string.IsNullOrWhiteSpace(twilioToken);
-        hasTwilio &= !string.IsNullOrWhiteSpace(twilioFrom);
-
-        if (hasTwilio)
+        using (var db = new Email2SmsContext())
         {
-          var twilioClient = new TwilioRestClient(twilioSid, twilioToken);
-          var twilioFroms = twilioFrom.Split(',');
-          var fromIndex = 0;
+          var msgLog = GetMessageLog(message);
+          db.MessageLog.Add(msgLog);
+          db.SaveChanges();
 
-          using (var db = new Email2SmsContext())
+          string plainMessage = message.plain;
+          var locationMatch = Regex.Match(plainMessage, "(4\\d\\.\\d+)[N ,]+[W\\- ]?(12\\d+\\.\\d+)", RegexOptions.IgnoreCase);
+          if (locationMatch.Success)
           {
-            var msgLog = GetMessageLog(message);
-            db.MessageLog.Add(msgLog);
-            db.SaveChanges();
+            plainMessage += string.Format(" http://maps.google.com/?q={0},-{1}", locationMatch.Groups[1].Value, locationMatch.Groups[2].Value);
+          }
 
-            string plainMessage = message.plain;
-            var locationMatch = Regex.Match(plainMessage, "(4\\d\\.\\d+)[N ,]+[W\\- ]?(12\\d+\\.\\d+)", RegexOptions.IgnoreCase);
-            if (locationMatch.Success)
-            {
-              plainMessage += string.Format(" http://maps.google.com/?q={0},-{1}", locationMatch.Groups[1].Value, locationMatch.Groups[2].Value);
-            }
-
-            // A quick in-memory duplicate check backed up by a database dupe check in case we've been recycled.
-            DateTime duplicateTime = DateTime.UtcNow.AddMinutes(-5);
-            lock (cacheLock)
-            {
-              if (messageCache.Contains(plainMessage))
-              {
-                return "Duplicate";
-              }
-              else
-              {
-                messageCache.Add(plainMessage, DateTime.Now, DateTimeOffset.Now.AddMinutes(5));
-              }
-            }
-
-            if (db.InvoiceItems.Any(f => f.Message.Text == plainMessage && f.SendTime > duplicateTime))
+          // A quick in-memory duplicate check backed up by a database dupe check in case we've been recycled.
+          DateTime duplicateTime = DateTime.UtcNow.AddMinutes(-5);
+          lock (cacheLock)
+          {
+            if (messageCache.Contains(plainMessage))
             {
               return "Duplicate";
             }
+            else
+            {
+              messageCache.Add(plainMessage, DateTime.UtcNow, DateTimeOffset.UtcNow.AddMinutes(5));
+            }
+          }
 
-            var list = db.Phones.Where(f => f.Active).ToList();
+          if (db.InvoiceItems.Any(f => f.Message.Text == plainMessage && f.SendTime > duplicateTime))
+          {
+            return "Duplicate";
+          }
+
+          var list = db.Phones.Where(f => f.Active).ToList();
+          if (TwilioProvider.HasTwilio())
+          {
+            var twilioClient = TwilioProvider.GetTwilio();
+            var twilioFroms = TwilioProvider.GetNumbers();
+            var fromIndex = 0;
+            var twilioCallback = ConfigurationManager.AppSettings["twilio:callback"];
+
             foreach (var item in list)
             {
-              var twilioMsg = twilioClient.SendMessage(twilioFroms[fromIndex], item.Address, plainMessage);
+              var twilioMsg = twilioClient.SendMessage(twilioFroms[fromIndex], item.Address, plainMessage, twilioCallback);
               fromIndex = (fromIndex + 1) % twilioFroms.Length;
               db.InvoiceItems.Add(new InvoiceLog { SendTo = item, Sid = twilioMsg.Sid, SendTime = DateTime.UtcNow, Message = msgLog });
               db.SaveChanges();
@@ -81,6 +75,42 @@ namespace email2sms.Api
       {
         // debugger here:
         throw;
+      }
+      return "OK";
+    }
+
+    [Route("api/smsstatus")]
+    public object MessageCallback(TwilioCallback data)
+    {
+      if (data.MessageStatus == "delivered" && TwilioProvider.HasTwilio())
+      {
+        using (var db = new Email2SmsContext())
+        {
+          var twilio = TwilioProvider.GetTwilio();
+          var msg = twilio.GetMessage(data.MessageSid);
+
+          using (var scope = db.Database.BeginTransaction())
+          {
+            try
+            {
+              var dbMsg = db.InvoiceItems
+                .Where(f => f.Sid == data.MessageSid)
+                .Select(f => new { Msg = f, Sub = f.SendTo.Subscription }).FirstOrDefault();
+
+              if (dbMsg != null && !dbMsg.Msg.Price.HasValue)
+              {
+                dbMsg.Msg.Price = msg.Price;
+                db.SaveChanges();
+                scope.Commit();
+              }
+            }
+            catch (Exception)
+            {
+              scope.Rollback();
+              throw;
+            }
+          }
+        }
       }
       return "OK";
     }
