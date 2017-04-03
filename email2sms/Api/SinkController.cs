@@ -3,6 +3,7 @@ using System.Configuration;
 using System.Linq;
 using System.Runtime.Caching;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Web.Http;
 using email2sms.Api.Model;
 using email2sms.Data;
@@ -90,7 +91,20 @@ namespace email2sms.Api
         using (var db = new Email2SmsContext())
         {
           var twilio = TwilioProvider.GetTwilio();
-          var msg = twilio.GetMessage(data.MessageSid);
+          Message msg = null;
+          for (int i = 0; i < 10; i++)
+          {
+            msg = twilio.GetMessage(data.MessageSid);
+            if (msg.Price < 0) break;
+
+            Thread.Sleep(1000);
+          }
+          if (msg.Price == 0)
+          {
+            _log.Error($"Couldn't get price for message {data.MessageSid}");
+            throw new ApplicationException("Couldn't get price");
+          }
+
           _log.Info($"Message {data.MessageSid} price: {msg.Price}");
 
           using (var scope = db.Database.BeginTransaction())
