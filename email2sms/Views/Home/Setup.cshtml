@@ -1,10 +1,11 @@
-﻿@{
+﻿@model email2sms.Models.SetupInfoViewModel
+@{
   ViewBag.Title = "Account Setup";
 }
 <h2>@ViewBag.Title</h2>
 
 <h3>Billing</h3>
-@if (ViewBag.Customer.StripeCustomer == null)
+@if (Model.Customer == null || Model.Customer.StripeCustomer == null)
 {
   <p>
     Click the Subscribe button and enter your payment information to setup your account. You will be charged $1 now.
@@ -17,7 +18,7 @@
       <script src="https://checkout.stripe.com/checkout.js" class="stripe-button"
               data-key="@System.Configuration.ConfigurationManager.AppSettings["stripe:token_public"]"
               data-image="https://stripe.com/img/documentation/checkout/marketplace.png"
-              data-email="@ViewBag.Email"
+              data-email="@Model.Email"
               data-name="SAR Pages"
               data-description="($1/mo + messages)"
               data-panel-label="Subscribe"
@@ -35,7 +36,7 @@ else
       <h3>Phones</h3>
       <p>Enter phone numbers, one per line, using only numbers.<br/> (ex: 1234567890)</p>
       <form method="post">
-        <textarea name="phones" cols="12" rows="5" style="display:block">@string.Join("\n", (string[])ViewBag.Phones)</textarea>
+        <textarea name="phones" cols="12" rows="5" style="display:block">@string.Join("\n", (string[])Model.Phones)</textarea>
         <button type="submit">Save</button>
       </form>
       @if (ViewBag.Message != null)
@@ -44,10 +45,10 @@ else
       }
 
       @{ 
-        if (ViewBag.Inactive.Length > 0)
+        if (Model.Inactive.Length > 0)
         {
           <p>Inactive Phones:</p>
-          <ul>@foreach (var p in ViewBag.Inactive) {  <li>@p</li> }</ul>
+          <ul>@foreach (var p in Model.Inactive) {  <li>@p</li> }</ul>
         }
       }
     </div>

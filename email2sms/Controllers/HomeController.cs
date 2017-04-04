@@ -42,15 +42,13 @@ namespace email2sms.Controllers
           .AsNoTracking()
           .FirstOrDefault();
 
-        ViewBag.Email = User.Identity.Name;
-        if (data != null)
+        return View(new SetupInfoViewModel
         {
-          ViewBag.Customer = data.f;
-          ViewBag.Phones = data.Phones.Where(f => f.Active).Select(f => f.Address).ToArray();
-          ViewBag.Inactive = data.Phones.Where(f => !f.Active).Select(f => f.Address).ToArray();
-        }
-
-        return View();
+          Email = User.Identity.Name,
+          Customer = data?.f,
+          Phones = data?.Phones?.Where(f => f.Active)?.Select(f => f.Address)?.ToArray() ?? new string[0],
+          Inactive = data?.Phones?.Where(f => f.Active)?.Select(f => f.Address)?.ToArray() ?? new string[0]
+        });
       }
     }
 

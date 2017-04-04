@@ -264,6 +264,7 @@
     <Compile Include="Models\HistoryRow.cs" />
     <Compile Include="Models\IdentityModels.cs" />
     <Compile Include="Models\ManageViewModels.cs" />
+    <Compile Include="Models\SetupInfoViewModel.cs" />
     <Compile Include="Models\StripeTokenResponse.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Startup.cs" />
