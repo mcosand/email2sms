@@ -42,10 +42,14 @@ namespace email2sms.Controllers
           .AsNoTracking()
           .FirstOrDefault();
 
-        ViewBag.Customer = data.f;
         ViewBag.Email = User.Identity.Name;
-        ViewBag.Phones = data.Phones.Where(f => f.Active).Select(f => f.Address).ToArray();
-        ViewBag.Inactive = data.Phones.Where(f => !f.Active).Select(f => f.Address).ToArray();
+        if (data != null)
+        {
+          ViewBag.Customer = data.f;
+          ViewBag.Phones = data.Phones.Where(f => f.Active).Select(f => f.Address).ToArray();
+          ViewBag.Inactive = data.Phones.Where(f => !f.Active).Select(f => f.Address).ToArray();
+        }
+
         return View();
       }
     }
@@ -181,6 +185,11 @@ namespace email2sms.Controllers
       {
         var userId = GetUserId();
         var row = db.Subscriptions.FirstOrDefault(f => f.User == userId);
+        if (row == null)
+        {
+          row = new Subscription { User = userId };
+          db.Subscriptions.Add(row);
+        }
         row.StripeCustomer = stripeCustomer.Id;
         row.LastInvoiceUtc = DateTime.UtcNow;
         db.SaveChanges();
