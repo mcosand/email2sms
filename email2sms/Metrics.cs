@@ -11,7 +11,11 @@ namespace email2sms
   {
     static Metrics()
     {
-      TelemetryConfiguration.Active.InstrumentationKey = ConfigurationManager.AppSettings["APPINSIGHTS_INSTRUMENTATIONKEY"];
+      var instrumentKey = ConfigurationManager.AppSettings["APPINSIGHTS_INSTRUMENTATIONKEY"];
+      if (!string.IsNullOrWhiteSpace(instrumentKey))
+      {
+        TelemetryConfiguration.Active.InstrumentationKey = instrumentKey;
+      }
     }
 
     public static void Exception(Exception ex)

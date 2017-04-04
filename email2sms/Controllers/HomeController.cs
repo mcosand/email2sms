@@ -47,7 +47,7 @@ namespace email2sms.Controllers
           Email = User.Identity.Name,
           Customer = data?.f,
           Phones = data?.Phones?.Where(f => f.Active)?.Select(f => f.Address)?.ToArray() ?? new string[0],
-          Inactive = data?.Phones?.Where(f => f.Active)?.Select(f => f.Address)?.ToArray() ?? new string[0]
+          Inactive = data?.Phones?.Where(f => !f.Active)?.Select(f => f.Address)?.ToArray() ?? new string[0]
         });
       }
     }
@@ -81,8 +81,9 @@ namespace email2sms.Controllers
           .Where(f => f.Subscription.User != userId)
           .Select(f => f.Address)
           .ToArray()
-          .GroupJoin(list, f => f, f => f, (a, b) => a)
+          .Intersect(list)
           .ToArray();
+
         if (dupes.Length > 0)
         {
           ViewBag.Message = "Error: Phone numbers already used by someone else: " + string.Join(", ", dupes);
