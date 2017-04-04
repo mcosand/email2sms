@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Configuration;
+using System.Diagnostics;
 using System.Linq;
 using System.Runtime.Caching;
 using System.Text.RegularExpressions;
@@ -7,7 +8,6 @@ using System.Threading;
 using System.Web.Http;
 using email2sms.Api.Model;
 using email2sms.Data;
-using log4net;
 using Newtonsoft.Json;
 using Twilio;
 
@@ -17,7 +17,6 @@ namespace email2sms.Api
   {
     static MemoryCache messageCache = new MemoryCache("pagesCache");
     static object cacheLock = new object();
-    ILog _log = LogManager.GetLogger("SinkController");
 
     [Route("api/sink")]
     public object Post(EmailMessage message)
@@ -87,7 +86,7 @@ namespace email2sms.Api
     {
       if (data.MessageStatus == "delivered" && TwilioProvider.HasTwilio())
       {
-        _log.Info($"Callback: delivered message {data.MessageSid}");
+        Metrics.Info($"Callback: delivered message {data.MessageSid}");
         using (var db = new Email2SmsContext())
         {
           var twilio = TwilioProvider.GetTwilio();
@@ -95,14 +94,14 @@ namespace email2sms.Api
           for (int i = 0; i < 10; i++)
           {
             msg = twilio.GetMessage(data.MessageSid);
-            _log.Info($"Message {data.MessageSid} price: {msg.Price}");
+            Metrics.Info($"Message {data.MessageSid} price: {msg.Price}");
             if (msg.Price < 0) break;
 
             Thread.Sleep(1000);
           }
           if (msg.Price == 0)
           {
-            _log.Error($"Couldn't get price for message {data.MessageSid}");
+            Metrics.Error($"Couldn't get price for message {data.MessageSid}");
             throw new ApplicationException("Couldn't get price");
           }
 

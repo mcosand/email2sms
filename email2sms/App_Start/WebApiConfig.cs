@@ -1,11 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Web.Http;
 using System.Web.Http.Filters;
-using log4net;
 
 namespace email2sms
 {
@@ -30,8 +27,9 @@ namespace email2sms
   {
     public override void OnException(HttpActionExecutedContext context)
     {
+      Metrics.Exception(context.Exception);
+
       //Log Critical errors
-      LogManager.GetLogger("Errors").Error(context.Exception);
       using (var db = new email2sms.Data.Email2SmsContext())
       {
         db.Errors.Add(new Data.ErrorRow { User = context.ActionContext.RequestContext.Principal.Identity.Name,

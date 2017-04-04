@@ -4,20 +4,17 @@ using System.Linq;
 using System.Web.Http;
 using email2sms.Api.Model;
 using email2sms.Data;
-using log4net;
 using Stripe;
 
 namespace email2sms.Api
 {
   public class StripeController : ApiController
   {
-    ILog _log = LogManager.GetLogger("HomeController");
-
     [HttpPost]
     [Route("api/stripe/hook")]
     public object StripeHook(StripeMessage<StripeCreateInvoice> message)
     {
-      _log.Info($"Received stripe webhook call: {message.Type}");
+      Metrics.Info($"Received stripe webhook call: {message.Type}");
       if (message.Type == "invoice.created") return InvoiceCreated(message.Data.Object);
       return "NOOP";
     }
@@ -29,7 +26,7 @@ namespace email2sms.Api
         var sub = db.Subscriptions.Where(f => f.StripeCustomer == invoiceData.Customer).FirstOrDefault();
         if (sub == null)
         {
-          _log.Error($"Tried to create invoice for {invoiceData.Customer}, who doesn't seem to be a subscriber");
+          Metrics.Error($"Tried to create invoice for {invoiceData.Customer}, who doesn't seem to be a subscriber");
           return "Not Known";
         }
 
@@ -44,7 +41,7 @@ namespace email2sms.Api
         if (sum > 0)
         {
           var stripe = new StripeInvoiceItemService(ConfigurationManager.AppSettings["stripe:token_secret"]);
-          _log.Info($"Charging {sub.StripeCustomer} ${charges.Sum().Value} for {charges.Length} messages");
+          Metrics.Info($"Charging {sub.StripeCustomer} ${charges.Sum().Value} for {charges.Length} messages");
           var response = stripe.Create(new StripeInvoiceItemCreateOptions
           {
             Amount = sum,

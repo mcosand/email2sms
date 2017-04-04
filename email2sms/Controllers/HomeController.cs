@@ -7,15 +7,12 @@ using System.Text.RegularExpressions;
 using System.Web.Mvc;
 using email2sms.Data;
 using email2sms.Models;
-using log4net;
 using Stripe;
 
 namespace email2sms.Controllers
 {
   public class HomeController : Controller
   {
-    ILog _log = LogManager.GetLogger("HomeController");
-
     public ActionResult Index()
     {
       return View();
@@ -31,7 +28,7 @@ namespace email2sms.Controllers
     [HttpGet]
     public ActionResult Setup()
     {
-
+      Metrics.Info("Tracing information");
       using (var db = new Email2SmsContext())
       {
         var userId = GetUserId();
@@ -64,7 +61,7 @@ namespace email2sms.Controllers
       }
       if (message != null)
       {
-        _log.Info(ViewBag.Message);
+        Metrics.Info(ViewBag.Message);
         ViewBag.Message = message;
         return Setup();
       }
@@ -82,7 +79,7 @@ namespace email2sms.Controllers
         if (dupes.Length > 0)
         {
           ViewBag.Message = "Error: Phone numbers already used by someone else: " + string.Join(", ", dupes);
-          _log.Info(ViewBag.Message);
+          Metrics.Info(ViewBag.Message);
           return Setup();
         }
 
@@ -96,14 +93,14 @@ namespace email2sms.Controllers
             {
               var client = TwilioProvider.GetTwilio();
 
-              _log.Info($"Sending welcome text to {p}");
+              Metrics.Info($"Sending welcome text to {p}");
               client.SendMessage(TwilioProvider.GetNumbers().First(), p, "This number will now receive SAR pages. matt@cosand.net");
             }
             sub.Phones.Add(new Phone { Active = true, Address = p, Subscription = sub });
           }
           else if (match.Active == false)
           {
-            _log.Info($"Marking {p} as active");
+            Metrics.Info($"Marking {p} as active");
             match.Active = true;
           }
         }
@@ -115,12 +112,12 @@ namespace email2sms.Controllers
           {
             if (db.InvoiceItems.Any(f => f.PhoneId == p.Id))
             {
-              _log.Info($"Marking phone {p.Address} inactive");
+              Metrics.Info($"Marking phone {p.Address} inactive");
               p.Active = false;
             }
             else
             {
-              _log.Info($"Removing unused phone {match}");
+              Metrics.Info($"Removing unused phone {match}");
               sub.Phones.Remove(p);
               db.Phones.Remove(p);
             }
@@ -168,11 +165,12 @@ namespace email2sms.Controllers
       myCustomer.PlanId = ConfigurationManager.AppSettings["stripe:plan"];                          // only if you have a plan
       myCustomer.TaxPercent = 0;                            // only if you are passing a plan, this tax percent will be added to the price.
 
-      _log.Info($"Creating subscription for {myCustomer.Email}");
+      Metrics.Info($"Creating subscription for {myCustomer.Email} {myCustomer.SourceToken} {myCustomer.PlanId}");
 
 
       var customerService = new StripeCustomerService(ConfigurationManager.AppSettings["stripe:token_secret"]);
       StripeCustomer stripeCustomer = customerService.Create(myCustomer);
+
 
       using (var db = new Email2SmsContext())
       {
@@ -184,6 +182,11 @@ namespace email2sms.Controllers
       }
 
       return Redirect("~/home/setup");
+    }
+
+    public ContentResult TestErrors()
+    {
+      throw new ApplicationException("test exceptions");
     }
   }
 }
