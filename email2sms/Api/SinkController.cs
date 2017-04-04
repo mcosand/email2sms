@@ -132,6 +132,13 @@ namespace email2sms.Api
       return "OK";
     }
 
+    [Route("api/testerrors")]
+    [HttpGet]
+    public string TestErrors(string msg = "default")
+    {
+      throw new ApplicationException(msg);
+    }
+
     private static MessageLog GetMessageLog(EmailMessage message)
     {
       var msg = new MessageLog

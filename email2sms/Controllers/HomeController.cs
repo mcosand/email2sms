@@ -17,6 +17,11 @@ namespace email2sms.Controllers
     {
       return View();
     }
+    protected override void OnException(ExceptionContext filterContext)
+    {
+      Metrics.Exception(new InvalidOperationException("controller handler " + filterContext.Exception.Message, filterContext.Exception));
+      base.OnException(filterContext);
+    }
 
     private Guid GetUserId()
     {
