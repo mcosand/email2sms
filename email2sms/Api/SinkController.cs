@@ -75,8 +75,7 @@ namespace email2sms.Api
       }
       catch (Exception ex)
       {
-        // debugger here:
-        throw;
+        Metrics.Exception(ex);
       }
       return "OK";
     }
